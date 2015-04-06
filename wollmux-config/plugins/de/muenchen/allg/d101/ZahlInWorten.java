@@ -51,24 +51,25 @@ public class ZahlInWorten
 
   private static final String[] ZIFFER =
     {
-      "null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht",
-      "neun" };
+      "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+      "nine" };
 
   private static final String[] SCALE =
     {
-      "", "tausend", "million", "milliard", "billion", "billiard", "trillion",
-      "trilliard", "quadrillion", "quadrilliard", "quintillion", "quintilliard",
-      "sextillion", "sextilliard", "septillion", "septilliard", "oktillion",
-      "oktilliard", "nonillion", "nonilliard", "dezillion", "dezilliard" };
+      "", "thousand", "million", "billion", "trillion",
+      "quadrillion", "quintillion", "sextillion", "septillion", "octillion",
+      "nonillion", "decillion", "undecillion", "duodecillion", "tredecillion",
+      "quattuordecillion", "quindecillion", "sexdecillion", "septendecillion",
+      "octodecillion", "novemdecillion", "vigintillion" };
 
   private static final String[] HUNDERT_BLOCK = {
-    "ein", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun" };
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
 
   private static final String[] EINER_BLOCK =
     {
-      "eine", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun",
-      "zehn", "elf", "zwölf", "dreizehn", "vierzehn", "fünfzehn", "sechzehn",
-      "siebzehn", "achtzehn", "neunzehn" };
+      "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+      "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+      "seventeen", "eighteen", "nineteen" };
 
   private static final String[] ZIG_BLOCK =
     {

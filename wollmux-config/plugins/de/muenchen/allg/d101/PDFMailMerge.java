@@ -592,7 +592,7 @@ public class PDFMailMerge
     private void createGUI()
     {
       dialog = new JDialog();
-      dialog.setTitle("PDF-Gesamtdokument");
+      dialog.setTitle("PDF--Single");
       dialog.addWindowListener(myWindowListener);
       JPanel panel = new JPanel(new BorderLayout());
       panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -602,13 +602,13 @@ public class PDFMailMerge
       Box vbox = Box.createVerticalBox();
       vbox.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createRaisedBevelBorder(),
-        "Einstellungen für die Dokumenterstellung"));
+        "Document creation settings"));
       optionBox.add(vbox);
       optionBox.add(Box.createVerticalStrut(10));
       Box hbox;
 
       hbox = Box.createHorizontalBox();
-      duplexCheckBox = new JCheckBox("Leerseiten für Duplexdruck einfügen");
+      duplexCheckBox = new JCheckBox("Add blank pages for duplex printing");
       hbox.add(duplexCheckBox);
       hbox.add(Box.createHorizontalGlue());
       vbox.add(hbox);
@@ -616,14 +616,14 @@ public class PDFMailMerge
       hbox = Box.createHorizontalBox();
       hbox.add(Box.createHorizontalStrut(22));
       hbox.add(new JLabel(
-        "<html>Leerseiten einfügen, damit alle Ausdrucke mit ungeraden Seitennummern<br/>beginnen. Dies wird benötigt, wenn das Dokument später per Duplexdruck<br/>gedruckt werden soll.</html>"));
+        "<html>Add blank pages so all printouts begin with odd numbers.<br/>This will be required for later duplex printing.</html>"));
       hbox.add(Box.createHorizontalStrut(10));
       hbox.add(Box.createHorizontalGlue());
       vbox.add(hbox);
       vbox.add(Box.createVerticalStrut(10));
 
       hbox = Box.createHorizontalBox();
-      outputFileCheckBox = new JCheckBox("Dokument speichern unter");
+      outputFileCheckBox = new JCheckBox("Save document as");
       outputFileCheckBox.setSelected(false);
       hbox.add(outputFileCheckBox);
       hbox.add(Box.createHorizontalGlue());
@@ -659,7 +659,7 @@ public class PDFMailMerge
       vbox.add(Box.createVerticalStrut(10));
 
       hbox = Box.createHorizontalBox();
-      viewerCheckBox = new JCheckBox("Dokument gleich betrachten mit");
+      viewerCheckBox = new JCheckBox("Open document for viewing with");
       viewerCheckBox.setSelected(true);
       hbox.add(viewerCheckBox);
       hbox.add(Box.createHorizontalGlue());
@@ -696,7 +696,7 @@ public class PDFMailMerge
 
       JButton button;
       hbox = Box.createHorizontalBox();
-      button = new JButton(("Abbrechen"));
+      button = new JButton(("Cancel"));
       button.addActionListener(new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
@@ -706,7 +706,7 @@ public class PDFMailMerge
       });
       hbox.add(button);
       hbox.add(Box.createHorizontalGlue());
-      button = new JButton(("Drucken"));
+      button = new JButton(("Print"));
       button.addActionListener(new ActionListener()
       {
         public void actionPerformed(ActionEvent e)
@@ -840,7 +840,7 @@ public class PDFMailMerge
         }
       };
       fc.setFileFilter(filter);
-      fc.setDialogTitle("Dokument speichern unter...");
+      fc.setDialogTitle("Save document as...");
       fc.setMultiSelectionEnabled(false);
 
       int ret = fc.showSaveDialog(dialog);
@@ -862,7 +862,7 @@ public class PDFMailMerge
     private void showViewerFileChooser()
     {
       JFileChooser fc = new JFileChooser("/");
-      fc.setDialogTitle("PDF-Betrachter auswählen");
+      fc.setDialogTitle("Choose PDF viewer");
       fc.setMultiSelectionEnabled(false);
       int ret = fc.showOpenDialog(dialog);
       if (ret == JFileChooser.APPROVE_OPTION)
