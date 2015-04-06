@@ -1,0 +1,27 @@
+#!/bin/bash
+# Dieses Skript baut die .class-Dateien zu den in plugins abgelegten .java-Dateien
+
+scripts="${0%/*}"
+plugins="${scripts}/../plugins"
+
+OOOCLS1="/opt/openoffice.org/program/classes"
+OOOCLS2="/opt/openoffice.org/program/classes" # kann unterschiedlich sein!
+OOOJARS="$OOOCLS1/juh.jar:$OOOCLS1/jurt.jar:$OOOCLS1/ridl.jar:$OOOCLS2/unoil.jar"
+
+PDFBOXJARS="$plugins/commons-logging-1.1.1.jar:$plugins/pdfbox-1.5.0.jar"
+
+export CLASSPATH="$plugins:$plugins/WollMuxInterfaces.jar:$plugins/classes.jar:$PDFBOXJARS:$OOOJARS"
+
+for classFile in $(find $plugins -name "*.class")
+do
+  rm $classFile
+done
+
+for javaFile in $(find $plugins -name "*.java")
+do
+  echo ""
+  echo "===================================================================="
+  echo "javac $javaFile"
+  echo "===================================================================="
+  javac -encoding UTF-8 -target 1.5 $javaFile
+done

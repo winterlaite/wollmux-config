@@ -1,0 +1,20 @@
+Index: datenquellen.conf
+===================================================================
+--- datenquellen.conf	(Revision 2623)
++++ datenquellen.conf	(Arbeitskopie)
+@@ -78,6 +78,15 @@
+ 
+ 
+ ###############################################################################
++# Diese Konfiguration ist eine standalone-Konfiguration, mit der KEIN Zugriff
++# auf einen ldap-Server erfolgt. Die folgende Zeile stellt sicher, dass die
++# oben definierten Datenquellen ldap und personal wieder platt gemacht und
++# ersetzt werden durch dummy-Datenquellen, die nur aus lokalen Dateien lesen.
++###############################################################################
++  %include "ldapdaten_include.conf"
++
++
++###############################################################################
+ # Die folgenden 3 Datenquellen fügen die Spalten der Fußzeile abhängig von der
+ # OrgaKurz hinzu. Für ein Hinzufügen von Spalten in Abhängigkeit von anderen
+ # Spalten ist grundsätzlich immer eine Gruppe aus 3 Datenquellen erforderlich,

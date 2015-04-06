@@ -1,0 +1,9 @@
+Index: main.conf
+===================================================================
+--- main.conf	(Revision 3445)
++++ main.conf	(Arbeitskopie)
+@@ -41,3 +41,4 @@
+ %include "textbausteine.conf"
+ %include "tastenkuerzel.conf"
+ %include "referat.conf"
++%include "localization.conf"

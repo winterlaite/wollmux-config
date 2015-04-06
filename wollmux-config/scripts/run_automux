@@ -1,0 +1,7 @@
+#!/bin/sh
+Xdialog --title "automux..." --msgbox "Bitte warten..." 0 0 &
+waitboxpid=$!
+scripts="${0%/*}"
+result=$("${scripts}/automux" --all "${scripts}/.." 2>&1)
+kill $waitboxpid
+Xdialog --title "automux" --nocancel --cr-wrap --left --msgbox "$result" 0 0

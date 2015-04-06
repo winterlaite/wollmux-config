@@ -1,0 +1,240 @@
+
+# DIESE DATEI SOLLTE DURCH DIE REFERATE NICHT GEÄNDERT WERDEN!
+# ANPASSUNGEN SOLLTEN NUR IN referat.conf DURCHGEFÜHRT WERDEN!
+
+# Der WollMux kann Informationen aus verschiedenen Datenquellen zusammenführen und nutzen. 
+# Es ist zum Beispiel möglich, Name, Vorname, Orga-Einheit, Telefonnummer und Büroanschrift aus 
+# einem LDAP-Verzeichnis lesen, die zur Büroanschrift passende ÖPNV-Verbindung aus einer 
+# Textdatei auf einem Netzlaufwerk ergänzen und mit diesen Informationen automatisch einen 
+# Briefkopf befüllen zu lassen.
+#
+# Diese Datei enthält die Definitionen der Datenquellen, die der WollMux nutzen soll.
+# Die Datenquellendefinitionen werden in der Reihenfolge ausgewertet in der sie in dieser Datei
+# stehen. Jede Datenquellendefintion kann sich dabei auf vorangehende Definitionen beziehen.
+# Zum Beispiel wird in dieser Datei die Datenquelle "personal" immer wieder redefiniert unter
+# Bezugname auf die vorangehende Definition von "personal".
+#
+# Die SENDER_SOURCE Direktive gibt an, welche Datenquelle zum Befüllen der Absenderangaben
+# in Briefköpfen verwendet werden soll.
+SENDER_SOURCE "personal"
+
+# Über das Setzen von SENDER_DISPLAYTEMPLATE kann gesteuert werden wie die Einträge der
+# persönlichen Absenderliste (PAL) angezeigt werden sollen (und auch intern über die
+# WollMux-Implementierung des XPALProvider-Interfaces ausgegeben werden).
+# Neben statischen Textteilen kann das Anzeigemuster Platzhalter der Form %{Spaltenname}
+# enthalten, die für den jeweiligen Datensatz durch den entsprechenden Datenbankspaltenwert
+# ersetzt werden. 
+SENDER_DISPLAYTEMPLATE "%{Nachname}, %{Vorname} (%{Rolle})"
+
+# Mit DATASOURCE_TIMEOUT kann ein Timeout für die Suche in Datenquellen (z.B. im Dialog 
+# "Absenderliste Verwalten") angegeben werden. 
+DATASOURCE_TIMEOUT "10000"
+
+Datenquellen(
+
+  # Die folgende Datenquellendefinition spezifiziert die Abbildung der Daten des LDAP auf die 
+  # im Briefkopfsystem verwendete Spaltenstruktur.
+  Datenquelle( 
+    NAME "ldap"
+    TYPE "ldap"
+    URL "ldap://ldap01.muenchen.de:389"
+    BASE_DN "o=Landeshauptstadt München,c=de"
+    OBJECT_CLASS "person"
+    
+    Spalten(
+      (DB_SPALTE "Vorname" PATH "0:givenName"            OBJECT_CLASS "person")
+      (DB_SPALTE "Nachname" PATH "0:sn"                  OBJECT_CLASS "person")
+      (DB_SPALTE "Anrede" PATH "0:lhmTitle"              OBJECT_CLASS "person")
+      (DB_SPALTE "Titel" PATH "0:personalTitle"          OBJECT_CLASS "person")
+      (DB_SPALTE "Telefon" PATH "0:telephoneNumber"      OBJECT_CLASS "person")
+      (DB_SPALTE "OrgaTelefon" PATH "-1:telephoneNumber"      OBJECT_CLASS "lhmOrganizationalUnit")
+      (DB_SPALTE "OrgaFax" PATH "-1:facsimileTelephoneNumber"      OBJECT_CLASS "lhmOrganizationalUnit")
+      (DB_SPALTE "Fax" PATH "0:facsimileTelephoneNumber" OBJECT_CLASS "person")
+      (DB_SPALTE "Zimmer" PATH "0:roomNumber"            OBJECT_CLASS "person")
+      (DB_SPALTE "Mail" PATH "0:mail"                    OBJECT_CLASS "person")
+      (DB_SPALTE "DienstBezKurz" PATH "0:title"          OBJECT_CLASS "person")
+      (DB_SPALTE "Zustaendigkeit" PATH "0:lhmRankInOuFunction"          OBJECT_CLASS "person")
+      (DB_SPALTE "Funktion" PATH "0:lhmFunctionalTitle"  OBJECT_CLASS "person")
+      (DB_SPALTE "Referat" PATH "3:lhmReferatName"       OBJECT_CLASS "lhmOrganizationalUnit" LINE_SEPARATOR "%%%%")
+      (DB_SPALTE "OberOrga" PATH "4:lhmOULongname"       OBJECT_CLASS "lhmOrganizationalUnit" LINE_SEPARATOR "%%%%")
+      (DB_SPALTE "OrgaName" PATH "-1:lhmDienststellenName"   OBJECT_CLASS "lhmOrganizationalUnit")
+      (DB_SPALTE "OrgaKurz" PATH "-1:lhmOUShortname"     OBJECT_CLASS "lhmOrganizationalUnit")
+      (DB_SPALTE "Rolle" PATH "-1:lhmOUShortname"        OBJECT_CLASS "lhmOrganizationalUnit")
+      (DB_SPALTE "OrgaLang" PATH "-1:lhmOULongname"      OBJECT_CLASS "lhmOrganizationalUnit" LINE_SEPARATOR "%%%%")
+      (DB_SPALTE "Postanschrift" PATH "0:street"         OBJECT_CLASS "person")
+      (DB_SPALTE "PostPLZ" PATH "0:postalCode"           OBJECT_CLASS "person")
+      (DB_SPALTE "PostOrt" PATH "0:l" OBJECT_CLASS "person")
+      (DB_SPALTE "Dienstgebaeude" PATH "0:lhmOfficeStreetAddress" OBJECT_CLASS "person")
+      (DB_SPALTE "DienstgebaeudePLZ" PATH "0:lhmOfficePostalCode" OBJECT_CLASS "person") 
+      (DB_SPALTE "DienstgebaeudeOrt" PATH "0:lhmOfficeLocalityName" OBJECT_CLASS "person") 
+      (DB_SPALTE "OrgaEmail" PATH "-1:mail"              OBJECT_CLASS "lhmOrganizationalUnit")
+      (DB_SPALTE "MVV" PATH "-1:lhmOuMVV"                OBJECT_CLASS "lhmOrganizationalUnit" LINE_SEPARATOR "%%%%")
+      (DB_SPALTE "Oeffnungszeiten" PATH "-1:lhmWorkHours" OBJECT_CLASS "lhmOrganizationalUnit")
+      (DB_SPALTE "persErreichbarkeit" PATH "0:lhmWorkHours" OBJECT_CLASS "person") 
+      (DB_SPALTE "OID" PATH "0:lhmObjectID"         )
+    )
+    Schluessel( "OID" )
+  )
+
+
+  # Der folgende Abschnitt ist für Schemaaenderungen der Datenquelle "ldap" vorgesehen
+  # und erzeugt die neue Datenquelle "personal".
+  Datenquelle(
+    NAME "personal" TYPE "schema" SOURCE "ldap"
+  ) 
+
+
+###############################################################################
+# Die folgenden 3 Datenquellen fügen die Spalten der Fußzeile abhängig von der
+# OrgaKurz hinzu. Für ein Hinzufügen von Spalten in Abhängigkeit von anderen
+# Spalten ist grundsätzlich immer eine Gruppe aus 3 Datenquellen erforderlich,
+# die nach dem Prinzip der untenstehenden definiert sind.
+###############################################################################
+  
+  Datenquelle(
+    NAME "mapOrgaKurz" TYPE "conf"
+    URL "conf/mapOrgaKurz.conf"
+    Schluessel( "OrgaKurz" )
+  )
+
+  Datenquelle(
+    NAME "personal"
+    TYPE "attach"
+    SOURCE "personal"
+    ATTACH "mapOrgaKurz"
+    MATCH("OrgaKurz" "OrgaKurz")
+  )
+
+  Datenquelle(
+    NAME "personal" TYPE "schema" SOURCE "personal"
+    RENAME("mapOrgaKurz__FussSpalte1" "FussSpalte1")
+    RENAME("mapOrgaKurz__FussSpalte2" "FussSpalte2")
+    RENAME("mapOrgaKurz__FussSpalte3" "FussSpalte3")
+    RENAME("mapOrgaKurz__FussSpalte4" "FussSpalte4")
+    DROP("mapOrgaKurz__OrgaKurz")
+  )  
+
+###############################################################################
+# Die folgenden 3 Datenquellen fügen die Spalten der Fußzeile abhängig vom
+# Dienstgebaeude hinzu. Für ein Hinzufügen von Spalten in Abhängigkeit von anderen
+# Spalten ist grundsätzlich immer eine Gruppe aus 3 Datenquellen erforderlich,
+# die nach dem Prinzip der untenstehenden definiert sind.
+###############################################################################
+  
+ Datenquelle(
+    NAME "mapDienstgebaeude" TYPE "conf"
+    URL "conf/mapDienstgebaeude.conf"
+    Schluessel( "Dienstgebaeude" )
+  )
+
+  Datenquelle(
+    NAME "personal"
+    TYPE "attach"
+    SOURCE "personal"
+    ATTACH "mapDienstgebaeude"
+    MATCH("Dienstgebaeude" "Dienstgebaeude")
+  )
+
+  Datenquelle(
+    NAME "personal" TYPE "schema" SOURCE "personal"
+    RENAME("mapDienstgebaeude__FussSpalte12" "FussSpalte12")
+    RENAME("mapDienstgebaeude__FussSpalte22" "FussSpalte22")
+    RENAME("mapDienstgebaeude__FussSpalte32" "FussSpalte32")
+    RENAME("mapDienstgebaeude__FussSpalte42" "FussSpalte42")
+    DROP("mapDienstgebaeude__Dienstgebaeude")
+  )  
+
+###############################################################################
+# Die folgenden 3 Datenquellen fügen die Spalte DienstBezLang abhängig von der
+# DienstBezKurz hinzu. Für ein Hinzufügen von Spalten in Abhängigkeit von anderen
+# Spalten ist grundsätzlich immer eine Gruppe aus 3 Datenquellen erforderlich,
+# die nach dem Prinzip der untenstehenden definiert sind.
+###############################################################################
+  
+ Datenquelle(
+    NAME "mapDienstBezKurzLang" TYPE "conf"
+    URL "conf/mapDienstBezKurzLang.conf"
+    Schluessel( "DienstBezKurz" "Anrede")
+  )
+
+  Datenquelle(
+    NAME "personal"
+    TYPE "attach"
+    SOURCE "personal"
+    ATTACH "mapDienstBezKurzLang"
+    MATCH("DienstBezKurz" "DienstBezKurz")
+    MATCH("Anrede" "Anrede")
+  )
+
+  Datenquelle(
+    NAME "personal" TYPE "schema" SOURCE "personal"
+    RENAME("mapDienstBezKurzLang__DienstBezLang" "DienstBezLang")
+    DROP("mapDienstBezKurzLang__DienstBezKurz")
+    DROP("mapDienstBezKurzLang__Anrede")
+  )
+
+###############################################################################
+# Die folgenden 3 Datenquellen fügen die Spalten für den Referent abhängig vom
+# Referat hinzu. Für ein Hinzufügen von Spalten in Abhängigkeit von anderen
+# Spalten ist grundsätzlich immer eine Gruppe aus 3 Datenquellen erforderlich,
+# die nach dem Prinzip der untenstehenden definiert sind.
+###############################################################################  
+
+  Datenquelle(
+    NAME "mapReferent" TYPE "conf"
+    URL "conf/mapReferent.conf"
+    Schluessel("Referat")
+  )
+
+  Datenquelle(
+    NAME "personal"
+    TYPE "attach"
+    SOURCE "personal"
+    ATTACH "mapReferent"
+    MATCH("Referat" "Referat")
+  )
+
+  Datenquelle(
+    NAME "personal" TYPE "schema" SOURCE "personal"
+    RENAME("mapReferent__Titel_Referent" "Titel_Referent")
+    RENAME("mapReferent__Name_Referent" "Name_Referent")
+    RENAME("mapReferent__Vorname_Referent" "Vorname_Referent")
+    RENAME("mapReferent__Bezeichnung_Referent" "Bezeichnung_Referent")
+    RENAME("mapReferent__Strasse_Referent" "Strasse_Referent")
+    RENAME("mapReferent__PLZ_Referent" "PLZ_Referent")
+    RENAME("mapReferent__Ort_Referent" "Ort_Referent")
+    RENAME("mapReferent__Telefon_Referent" "Telefon_Referent")
+    RENAME("mapReferent__Telefax_Referent" "Telefax_Referent")
+    DROP("mapReferent__Referat")
+    
+  )
+
+)#Datenquellen
+
+
+# Wird der WollMux zum ersten Mal in einem Benutzerprofil gestartet, so ist dem
+# WollMux (noch) nicht bekannt, welcher Absender für die Briefköpfe verwendet
+# werden soll. Daher läuft immer dann wenn die Persoenliche Absenderliste keine
+# Einträge hat beim Starten des WollMux eine Initialisierungsroutine ab, die
+# versucht, die Persoenliche Absenderliste mit mindestens einem Wert zu belegen.
+# Dieser Abschnitt beschreibt die Suchstrategie, die dazu angewandt wird. Die
+# Suche findet immer in der Datenquelle statt, die über SENDER_SOURCE
+# spezifiziert ist.
+PersoenlicheAbsenderlisteInitialisierung(
+  Suchstrategie(
+
+    # Benutzernamen haben auf dem Basisclient analog zu den Mailadressen
+    # der LHM in der Regel die Form vorname.nachname. Wird also an den
+    # Benutzernamen der Zusatz "@muenchen.de" angehängt, so kann der Name
+    # als Mailadresse interpretiert werden. Die Suche nutzt genau diese 
+    # Möglichkeit aus.
+    BY_JAVA_PROPERTY(Mail "${user.name}@muenchen.de")
+
+    # Unter Extras->Optionen->OpenOffice.org->Benutzerdaten können in 
+    # OpenOffice Benutzerdaten hinterlegt werden. In dieser Regel wird
+    # nach der Kombination Vorname/Nachname gesucht, wobei die entsprechenden
+    # Felder im OOo_USER_PROFILE "givenname" und "sn" heissen.
+    BY_OOO_USER_PROFILE(Vorname "${givenname}" Nachname "${sn}")
+
+  )
+)

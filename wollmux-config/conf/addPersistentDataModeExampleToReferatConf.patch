@@ -1,0 +1,27 @@
+Index: referat.conf
+===================================================================
+--- referat.conf	(Revision 4270)
++++ referat.conf	(Arbeitskopie)
+@@ -1,6 +1,22 @@
+  # Diese Datei ist für referatsspezifische Anpassungen vorgesehen. 
+  # Sie wird durch xupdate nicht überschrieben.
+ 
++# Regelung zur Speicherung der dokumentbezogenen Metadaten des WollMux:
++#
++# Verwenden Sie den folgenden Modus, so lange Sie Mischbetrieb mit älteren WollMux- und
++# OpenOffice.org-Versionen <3.2.1 haben:
++PERSISTENT_DATA_MODE "transition" 
++#
++# Verwenden Sie den folgenden Modus, wenn Sie in Ihrem Bereich flächendeckend WollMux >= 11.9
++# UNO OpenOffice.org 3.2.1 eingeführt haben:
++#PERSISTENT_DATA_MODE "rdfReadLegacy"
++#
++# Verwenden Sie den folgenden Modus, wenn Sie ab WollMux 11.9 eine Neueinführung des WollMux
++# machen und bisher noch keine WollMux-Vorlagen/Dokumente haben, die mit dem Modus "annotation"
++# geschrieben wurden:
++#PERSISTENT_DATA_MODE "rdf"
++
++
+ # DIE FOLGENDEN INHALTE SIND NUR EXEMPLARISCH FÜR DIE DINGE, DIE EIN REFERAT HIER TYPISCHERWEISE
+ # EINTRAGEN WÜRDE. SIE WERDEN FÜR DAS FUNKTIONIEREN DES WOLLMUX NICHT BENÖTIGT UND KÖNNEN
+ # GELÖSCHT WERDEN.

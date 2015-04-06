@@ -1,0 +1,99 @@
+#!/bin/bash
+# (c) Copyright 2006 Landeshauptstadt München
+# Autor: Matthias S. Benkmann (D-III-ITD 5.1)
+
+outdir="/tmp/"
+
+tempdir="/tmp/wollmux-standard-config-package-$(date --iso-8601)-$$"
+script="$(readlink -f "$0")"
+scriptdir="${script%/*}"
+
+mkdir -m 700 "$tempdir" || error "Kann Verzeichnis '$tempdir' nicht anlegen!"
+cd "$tempdir" || error "Kann nicht in Verzeichnis '$tempdir' wechseln!"
+
+trap "rm -rf $tempdir" EXIT
+
+error()
+{
+  echo 1>&2 "$@"
+  exit 1
+}
+
+usage='USAGE: package <URL> <revision> [<version>]
+  Kopiert Revision <revision> von <URL> nach
+  <URL>/milestones/<name>/<name>-<version> (wobei <name> die letzte Komponente von <URL> ist)
+  und erzeugt dann daraus ein .tar.gz Archiv mit und eines ohne Symlinks.
+  Falls <name>-<version> schon im Repository existiert,
+  so wird nur das Archiv erzeugt.
+  Falls <version> weg gelassen wird, wird die Versionsnummer automatisch generiert.
+  
+  ACHTUNG! Nicht vergessen, aktuelle Änderungen zu committen.
+'
+
+if [ $# != 3 -a $# != 2 ]; then
+  error "$usage"
+fi
+
+url="${1%/}"
+revision="$2"
+if [ $# = 3 ]; then
+  version="$3"
+else
+  version="$(($(date +%Y) - 2000)).$(date +%m|sed s/^0//)"
+fi
+
+wsc="${url##*/}"
+url="${url%$wsc}"
+
+svn list "${url}/milestones/${wsc}" >/dev/null 2>&1 || error "'${url}/milestones/${wsc}' existiert nicht"
+
+have_version=0
+svn list "${url}/milestones/${wsc}/${wsc}-${version}" >/dev/null 2>&1 && have_version=1
+
+if [ $have_version = 0 ]; then
+  echo -n "Meilenstein von Revision ${revision} als ${url}/milestones/${wsc}/${wsc}-${version} anlegen (j/n, y/n) ? "
+  antwort=n
+  read -r antwort
+  if [ "z$antwort" = "zj" -o "z$antwort" = "zy" ]; then
+    echo -n "Haben Sie vorher run_automux laufen lassen und sichergestellt, dass make_plugins fehlerfrei durchläuft (j/n, y/n) ? "
+    antwort=n
+    read -r antwort
+    if [ "z$antwort" = "zj" -o "z$antwort" = "zy" ]; then    
+      echo svn copy -r "$revision" "${url}/${wsc}" "${url}/milestones/${wsc}/${wsc}-${version}"
+      svn copy -r "$revision" "${url}/${wsc}" "${url}/milestones/${wsc}/${wsc}-${version}" || error
+    else
+      exit 0
+    fi  
+  else
+    exit 0
+  fi
+fi
+
+svn list "${url}/milestones/${wsc}/${wsc}-${version}" >/dev/null 2>&1 || error "Fehler beim Anlegen der Kopie!"
+
+svn export -q "${url}/milestones/${wsc}/${wsc}-${version}" || error
+
+chmod -R a+Xr "${wsc}-${version}"
+
+echo "Baue .class-Dateien für plugins"
+${wsc}-${version}/scripts/make_plugins || error "Fehler beim Erzeugen der .class-Dateien der Plugins!"
+
+echo "Erzeuge version.conf mit Version ${wsc}-${version}"
+CONF_FILE=`find "${wsc}-${version}" -name "version.conf" -type f -printf "%p\n"`
+for i in $CONF_FILE ; do
+  echo "CONF_VERSION \"${wsc}-${version}\"" >"${i}"
+done
+
+echo "Erzeuge $outdir/${wsc}-${version}.tar.gz"
+tar --owner=0 --group=0 -czf "$outdir/${wsc}-${version}.tar.gz" "${wsc}-${version}"
+echo "Erzeuge $outdir/${wsc}-${version}-windows.zip"
+"${scriptdir}"/tar2zip "$outdir/${wsc}-${version}.tar.gz" && mv "$outdir/${wsc}-${version}.zip" "$outdir/${wsc}-${version}-windows.zip"
+
+ # Debian-Paket bauen, falls entsprechendes Skript vorhanden
+if [ -x "${wsc}-${version}/debian/make" ]; then
+  (
+   cd "${wsc}-${version}" 
+   VERSION="${version}" debian/make >/dev/null
+  )
+  find -maxdepth 1 -name "*_${version}*.*" -exec mv {} .. \; -printf "Erzeugte /tmp/%f\n"
+fi
